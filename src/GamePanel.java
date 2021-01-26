@@ -5,7 +5,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -15,14 +17,25 @@ implements ActionListener, KeyListener{
 	Font smallText;
 	Font smallerText;
 	Timer frameDraw;
+	Timer alienSpawn;
 	RocketShip TheBlue;
+	ObjectManager OM; 
+	public static BufferedImage image;
+	public static boolean needImage = true;
+	public static boolean gotImage = false;
 	GamePanel(){
 	titleFont = new Font("Arial",Font.PLAIN,48);
 	smallText = new Font("Arial",Font.PLAIN, 20);
 	smallerText = new Font("Arial", Font.PLAIN, 15);
 	frameDraw = new Timer(1000/60, this);
+	alienSpawn = new Timer(1000, OM);
 	TheBlue = new RocketShip(250, 500, 50, 50);
+	OM = new ObjectManager(TheBlue);
+	if(needImage) {
+		loadImage("space.png");
+	}
 	frameDraw.start();
+	alienSpawn.start();
 	}
 	@Override
 	public void paintComponent(Graphics g) {
@@ -33,6 +46,17 @@ implements ActionListener, KeyListener{
 		} else if (currentState == END) {
 			drawEndState(g);
 		}
+	}
+	void loadImage(String imageFile) {
+	    if (needImage) {
+	        try {
+	            image = ImageIO.read(this.getClass().getResourceAsStream(imageFile));
+		    gotImage = true;
+	        } catch (Exception e) {
+	            
+	        }
+	        needImage = false;
+	    }
 	}
 
 	final int MENU = 0;
@@ -46,6 +70,7 @@ implements ActionListener, KeyListener{
 
 	void updateGameState() {
 		TheBlue.update();
+		OM.update();
 	}
 
 	void updateEndState() {
@@ -67,9 +92,11 @@ implements ActionListener, KeyListener{
 	}
 
 	void drawGameState(Graphics g) {
-		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, LeagueInvaders.WIDTH, LeagueInvaders.HEIGHT);
-		TheBlue.draw(g);
+		if(gotImage) {
+			g.drawImage(image, 0, 0, LeagueInvaders.WIDTH, LeagueInvaders.HEIGHT, null);
+			System.out.println("Success");
+		}
+		OM.draw(g);
 	}
 
 	void drawEndState(Graphics g) {
@@ -106,6 +133,17 @@ implements ActionListener, KeyListener{
 		        currentState = MENU;
 		    } else {
 		        currentState++;
+		        if(currentState == GAME) {
+		      alienSpawn.start();
+		        }
+		        if(currentState == END) {
+				      alienSpawn.stop();
+				        }
+		    }
+		    if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+		    if(currentState == GAME) {
+		    	OM.addProjectile(TheBlue.getProjectile());
+		    }
 		    }
 		}   
 		if (e.getKeyCode()==KeyEvent.VK_UP) {
