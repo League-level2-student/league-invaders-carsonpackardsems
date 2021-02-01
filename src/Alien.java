@@ -17,16 +17,16 @@ public class Alien extends GameObject{
 		// TODO Auto-generated constructor stub
 	}
 	public void update() {
+		super.update();
 		y+=speed;
+		
 	}
 	void draw(Graphics g) {
-		   g.setColor(Color.YELLOW);
-	        g.fillRect(x, y, width, height);
 	        if (gotImage) {
 				g.drawImage(image, x, y, width, height, null);
 			} else {
-				g.setColor(Color.BLUE);
-				g.fillRect(x, y, width, height);
+				 g.setColor(Color.YELLOW);
+			        g.fillRect(x, y, width, height);
 			}
 	}
 	void loadImage(String imageFile) {

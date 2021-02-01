@@ -17,9 +17,10 @@ implements ActionListener, KeyListener{
 	Font smallText;
 	Font smallerText;
 	Timer frameDraw;
-	Timer alienSpawn;
+	static Timer alienSpawn;
 	RocketShip TheBlue;
 	ObjectManager OM; 
+	Alien alien;
 	public static BufferedImage image;
 	public static boolean needImage = true;
 	public static boolean gotImage = false;
@@ -28,14 +29,14 @@ implements ActionListener, KeyListener{
 	smallText = new Font("Arial",Font.PLAIN, 20);
 	smallerText = new Font("Arial", Font.PLAIN, 15);
 	frameDraw = new Timer(1000/60, this);
-	alienSpawn = new Timer(1000, OM);
 	TheBlue = new RocketShip(250, 500, 50, 50);
 	OM = new ObjectManager(TheBlue);
+	alienSpawn = new Timer(1000, OM);
+	alien = new Alien(250, 0, 50, 50);
 	if(needImage) {
 		loadImage("space.png");
 	}
 	frameDraw.start();
-	alienSpawn.start();
 	}
 	@Override
 	public void paintComponent(Graphics g) {
@@ -64,6 +65,11 @@ implements ActionListener, KeyListener{
 	final int END = 2;
 	int currentState = MENU;
 
+	void startGame() {
+		alienSpawn = new Timer (1000, OM);
+		alienSpawn.start();
+		TheBlue.isActive = true;
+	}
 	void updateMenuState() {
 
 	}
@@ -94,9 +100,15 @@ implements ActionListener, KeyListener{
 	void drawGameState(Graphics g) {
 		if(gotImage) {
 			g.drawImage(image, 0, 0, LeagueInvaders.WIDTH, LeagueInvaders.HEIGHT, null);
-			System.out.println("Success");
+		
 		}
 		OM.draw(g);
+		alien.draw(g);
+		if(TheBlue.isActive == false) {
+			currentState = END;
+			alienSpawn.stop();
+			OM.reset();
+		}
 	}
 
 	void drawEndState(Graphics g) {
@@ -134,18 +146,18 @@ implements ActionListener, KeyListener{
 		    } else {
 		        currentState++;
 		        if(currentState == GAME) {
-		      alienSpawn.start();
+		    startGame();
 		        }
 		        if(currentState == END) {
 				      alienSpawn.stop();
-				        }
+			}
 		    }
-		    if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+		}   
+		if(e.getKeyCode() == KeyEvent.VK_SPACE) {
 		    if(currentState == GAME) {
 		    	OM.addProjectile(TheBlue.getProjectile());
 		    }
 		    }
-		}   
 		if (e.getKeyCode()==KeyEvent.VK_UP) {
 			TheBlue.up = true;
 		}if (e.getKeyCode()==KeyEvent.VK_DOWN) {

@@ -17,17 +17,55 @@ void addProjectile(Projectile p) {
 }
 void addAliens(Alien a) {
 	aliens.add(new Alien(random.nextInt(LeagueInvaders.WIDTH), 0, 50, 50));
+
 }
 void update() {
+	checkCollision();
+	purgeObjects();
 	for(int i = 0; i < aliens.size(); i++) {
 		aliens.get(i).update();
 		if(aliens.get(i).y >= LeagueInvaders.HEIGHT) {
 			aliens.get(i).isActive = false;
 		}
+		for(int ii = 0; ii < projectiles.size(); ii++) {
+			projectiles.get(ii).update();
+			if(projectiles.get(ii).y <= 0) {
+				projectiles.get(ii).isActive = false;
+			}
+	}
+	}
+}
+void reset() {
+	Blue2.isActive = false;
+	for(int i = 0; i < aliens.size(); i++) {
+		aliens.get(i).isActive = false;
+	}
+	for(int i = 0; i < projectiles.size(); i++) {
+		projectiles.get(i).isActive = false;
 	}
 }
 void draw(Graphics g) {
 	Blue2.draw(g);
+	for(int i = 0; i < aliens.size(); i++) {
+		aliens.get(i).draw(g);
+	}
+	for(int i = 0; i < projectiles.size(); i++) {
+		projectiles.get(i).draw(g);
+	}
+}
+void checkCollision (){
+	for(int i = 0; i < aliens.size(); i++ ) {
+		if(Blue2.collisionBox.intersects(aliens.get(i).collisionBox)) {
+			Blue2.isActive = false;
+			aliens.get(i).isActive = false;
+		}
+		for(int ii = 0; ii < projectiles.size(); ii++ ) {
+		if(projectiles.get(ii).collisionBox.intersects(aliens.get(i).collisionBox)) {
+			projectiles.get(ii).isActive = false;
+			aliens.get(i).isActive = false;
+		}
+		}
+	}
 }
 void purgeObjects() {
 	for(int i = 0; i < aliens.size(); i++) {
@@ -45,8 +83,7 @@ void purgeObjects() {
 public void actionPerformed(ActionEvent arg0) {
 	// TODO Auto-generated method stub
 	Random rx = new Random();
-	Random ry = new Random();
-	Alien a = new Alien(rx.nextInt(LeagueInvaders.WIDTH), ry.nextInt(LeagueInvaders.HEIGHT), 50, 50);
+	Alien a = new Alien(rx.nextInt(LeagueInvaders.WIDTH), 0, 50, 50);
 		addAliens(a);
 }
 }
